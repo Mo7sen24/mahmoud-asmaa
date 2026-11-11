@@ -363,7 +363,14 @@ var x=document.createElement('p');x.className='gb-tx';x.textContent=e.m;
 it.appendChild(top);it.appendChild(x);list.appendChild(it)})}
 function fetchRemote(){
 return fetch(GS_URL+(GS_URL.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){return r.json()}).then(function(d){
-if(Array.isArray(d)){cache=d;render(cache)}}).catch(function(){})}
+if(Array.isArray(d)){cache=d;render(cache);return d}return null}).catch(function(){return null})}
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function has(d,n,m){return !!d&&d.some(function(e){return e.n===n&&e.m===m})}
+function confirmSaved(n,m,tries){
+return wait(1500).then(fetchRemote).then(function(d){
+if(has(d,n,m))return true;
+if(tries>1)return confirmSaved(n,m,tries-1);
+return false})}
 function bad(el){el.classList.remove('bad');void el.offsetWidth;el.classList.add('bad');el.focus()}
 [nm,ms].forEach(function(el){el.addEventListener('input',function(){el.classList.remove('bad')})});
 document.getElementById('gbWand').addEventListener('click',function(){ms.value=SUG[Math.floor(Math.random()*SUG.length)];ms.classList.remove('bad')});
@@ -375,8 +382,8 @@ var entry={n:n,m:m,t:Date.now()};
 if(!GS_URL){var a=loadLocal();a.unshift(entry);saveLocal(a.slice(0,200));nm.value='';ms.value='';render(loadLocal());return}
 sending=true;sendBtn.disabled=true;sendBtn.style.opacity='.6';
 var prev=cache;cache=[entry].concat(cache);render(cache);nm.value='';ms.value='';
-fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({n:n,m:m})})
-.then(function(r){return r.json()}).then(function(d){if(!d||!d.ok)throw 0;return fetchRemote()})
+fetch(GS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({n:n,m:m})})
+.then(function(){return confirmSaved(n,m,3)}).then(function(ok){if(!ok)throw 0})
 .catch(function(){cache=prev;render(cache);nm.value=n;ms.value=m;alert('تعذّر إرسال التهنئة، حاول مرة أخرى')})
 .then(function(){sending=false;sendBtn.disabled=false;sendBtn.style.opacity=''})});
 if(GS_URL){fetchRemote();setInterval(function(){if(!sending&&!document.hidden)fetchRemote()},30000);
