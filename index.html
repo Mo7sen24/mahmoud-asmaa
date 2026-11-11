@@ -303,6 +303,7 @@ l.style.animationDuration=dur+'s';l.style.animationDelay=(-Math.random()*dur)+'s
 var LS='<svg viewBox="0 0 80 42"><path d="M1 31L9 27C18 8 46 2 78 13C64 36 30 42 9 28Z"/><path class="v" d="M8 28C28 22 50 17 72 13"/></svg>';
 document.getElementById('openBtn').addEventListener('click',function(){
 if(this.dataset.done)return;this.dataset.done=1;
+try{var au=new Audio('soong.mp3');au.loop=true;au.preload='auto';var pp=au.play();if(pp&&pp.catch)pp.catch(function(){})}catch(e){}
 var c=document.querySelector('main.card'),r=c.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,
 reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 var cv=document.getElementById('cover'),ht=cv.querySelector('.heart');
